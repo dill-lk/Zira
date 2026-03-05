@@ -104,9 +104,18 @@ class ZiraModel(nn.Module):
     # Convenience helpers
     # ------------------------------------------------------------------
     def num_parameters(self, trainable_only: bool = True) -> int:
-        """Return the number of (trainable) parameters."""
-        return sum(
-            p.numel()
-            for p in self.parameters()
-            if (not trainable_only or p.requires_grad)
-        )
+        """Return the number of (trainable) parameters.
+
+        Uses id-based deduplication so that weight-tied parameters
+        (e.g. embed_tokens ↔ lm_head) are counted only once, matching
+        the estimate reported by ZiraConfig.
+        """
+        seen: set[int] = set()
+        total = 0
+        for p in self.parameters():
+            if id(p) in seen:
+                continue
+            seen.add(id(p))
+            if not trainable_only or p.requires_grad:
+                total += p.numel()
+        return total

@@ -93,7 +93,7 @@ class ZiraConfig:
 # ---------------------------------------------------------------------------
 
 def ZiraMicro(**kwargs) -> ZiraConfig:
-    """~30M parameter model – fast debug runs."""
+    """~64M parameter model – fast debug runs."""
     defaults = dict(
         name="Zira-Micro",
         layers=12,
@@ -111,7 +111,7 @@ def ZiraMicro(**kwargs) -> ZiraConfig:
 
 
 def ZiraSmall(**kwargs) -> ZiraConfig:
-    """~60M parameter model – full SFT in one Colab session."""
+    """~119M parameter model – full SFT in one Colab session."""
     defaults = dict(
         name="Zira-Small",
         layers=16,
@@ -129,7 +129,7 @@ def ZiraSmall(**kwargs) -> ZiraConfig:
 
 
 def ZiraCompact(**kwargs) -> ZiraConfig:
-    """~80M parameter model."""
+    """~163M parameter model."""
     defaults = dict(
         name="Zira-Compact",
         layers=16,
@@ -147,7 +147,7 @@ def ZiraCompact(**kwargs) -> ZiraConfig:
 
 
 def ZiraBase(**kwargs) -> ZiraConfig:
-    """~200M parameter model – foundation pretrain across multiple sessions."""
+    """~410M parameter model – foundation pretrain across multiple sessions."""
     defaults = dict(
         name="Zira-Base",
         layers=24,
@@ -166,7 +166,7 @@ def ZiraBase(**kwargs) -> ZiraConfig:
 
 
 def ZiraPro(**kwargs) -> ZiraConfig:
-    """~450M parameter model – near full TPU utilisation."""
+    """~801M parameter model – near full TPU utilisation."""
     defaults = dict(
         name="Zira-Pro",
         layers=32,
