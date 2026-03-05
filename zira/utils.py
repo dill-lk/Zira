@@ -15,6 +15,7 @@ from typing import Optional
 
 import torch
 import torch.nn as nn
+from tqdm.auto import tqdm
 
 
 # ---------------------------------------------------------------------------
@@ -206,7 +207,7 @@ def log_step(
     grad_norm: Optional[float] = None,
 ) -> None:
     gnorm_str = f"  grad_norm={grad_norm:.3f}" if grad_norm is not None else ""
-    print(
+    tqdm.write(
         f"[step {step:7d}]  loss={loss:.4f}  lr={lr:.2e}"
         f"  tok/s={tokens_per_sec:,.0f}{gnorm_str}"
     )
