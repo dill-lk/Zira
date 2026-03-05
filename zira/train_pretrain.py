@@ -26,6 +26,7 @@ from typing import Optional
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, DistributedSampler
+from tqdm.auto import tqdm
 
 # ---------------------------------------------------------------------------
 # Local imports
@@ -152,6 +153,14 @@ def train(config: ZiraConfig, args: argparse.Namespace) -> None:
     accum_loss = 0.0
     optimizer.zero_grad()
 
+    pbar = tqdm(
+        total=config.max_steps,
+        initial=start_step,
+        desc="Pre-training",
+        unit="step",
+        disable=not is_master,
+    )
+
     while step < config.max_steps:
         try:
             input_ids, labels = next(data_iter)
@@ -193,22 +202,31 @@ def train(config: ZiraConfig, args: argparse.Namespace) -> None:
             scheduler.step()
             optimizer.zero_grad()
 
-            if is_master and step % args.log_every == 0:
-                log_step(
-                    step=step,
-                    loss=accum_loss * config.grad_accum_steps,
-                    lr=scheduler.current_lr,
-                    tokens_per_sec=tracker.tokens_per_sec,
-                    grad_norm=float(grad_norm),
+            if is_master:
+                pbar.set_postfix(
+                    loss=f"{accum_loss * config.grad_accum_steps:.4f}",
+                    lr=f"{scheduler.current_lr:.2e}",
+                    tok_s=f"{tracker.tokens_per_sec:,.0f}",
+                    gnorm=f"{float(grad_norm):.3f}",
                 )
+                if step % args.log_every == 0:
+                    log_step(
+                        step=step,
+                        loss=accum_loss * config.grad_accum_steps,
+                        lr=scheduler.current_lr,
+                        tokens_per_sec=tracker.tokens_per_sec,
+                        grad_norm=float(grad_norm),
+                    )
             accum_loss = 0.0
 
         # ---- checkpoint
         if is_master and (step + 1) % config.save_every == 0:
             save_checkpoint(model, optimizer, scheduler, step + 1, loss.item(), config, ckpt_dir)
 
+        pbar.update(1)
         step += 1
 
+    pbar.close()
     if is_master:
         save_checkpoint(model, optimizer, scheduler, step, accum_loss, config, ckpt_dir)
         print("[train_pretrain] Training complete.")
