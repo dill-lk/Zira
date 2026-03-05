@@ -91,9 +91,9 @@ class PretrainDataset(Dataset):
             )
         hf_name, config_name = self.SUPPORTED[dataset_name]
         if config_name:
-            ds = load_dataset(hf_name, config_name, split=split, trust_remote_code=True)
+            ds = load_dataset(hf_name, config_name, split=split)
         else:
-            ds = load_dataset(hf_name, split=split, trust_remote_code=True)
+            ds = load_dataset(hf_name, split=split)
 
         text_key = "text"
 
@@ -168,7 +168,7 @@ class SFTDataset(Dataset):
     def _build(self, tokenizer, dataset_name, split, max_samples) -> torch.Tensor:
         from datasets import load_dataset  # type: ignore
 
-        ds = load_dataset(dataset_name, split=split, trust_remote_code=True)
+        ds = load_dataset(dataset_name, split=split)
 
         all_ids: List[int] = []
         for i, example in enumerate(ds):
